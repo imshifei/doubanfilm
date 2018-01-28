@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>douban</title>
+	<title>看电影喽！</title>
 	<link rel="stylesheet" href="https://at.alicdn.com/t/font_441984_gx4esiforqc9pb9.css">
 	<meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable = 0" />
 	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
@@ -17,19 +17,13 @@
 		}
 		main{
 			height:calc(100vh - 50px);
-			overflow:scroll;
+			overflow-y:scroll;
 		}
 		main section{
 			display:none;
 		}
 		main section.active{
 			display:block;
-		}
-		main section:nth-child(2){
-			font-size: 48px;
-		}
-		main section:nth-child(3){
-			font-size: 48px;
 		}
 		footer{
 			border-top: 1px solid #ccc;
@@ -69,13 +63,28 @@
 		.item .details h2{
 			color:#3636f1;
 		}
+		.loading{
+			text-align: center;
+			padding:5px;
+			display:none;
+		}
+		
+		@keyframes rotate {
+	      0% { transform: rotate(0deg); }
+	      100% { transform: rotate(360deg);  }
+	    }
+
+	    .loading .iconfont{
+	      display: inline-block;
+	      animation: 1s rotate linear infinite;
+	    }
 	</style>
 </head>
 <body>
 	<main>
 		<section class="active">
 			<div class="item-container">
-
+	
 			<!-- <div class="item">
 				<div class="cover">
 					<img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg" alt="">
@@ -89,9 +98,10 @@
 				</div>
 			</div> -->
 			</div>
+			<div class="loading"><span class="iconfont icon-loading"></span></div>
 		</section>
-		<section>你好，王聪</section>
-		<section>你好，溧阳</section>
+		<section>2</section>
+		<section>3</section>
 	</main>
 	<footer>
 		<div class="active"><span class="iconfont icon-award"></span><span>Top250</span></div>
@@ -106,20 +116,40 @@
 			$(this).addClass('active').siblings().removeClass('active');
 			$('main section').eq($index).addClass('active').siblings().removeClass('active');
 		});
+		var star=0;
+		var flag=true;
+		start();
 
-		$.ajax({
+		function start(){
+			if(!flag){
+				return;
+			}
+			$('.loading').show();
+			flag=false;
+			$.ajax({
 			url:'https://api.douban.com/v2/movie/top250',
 			data:{
-				start:0,
+				start:star,
 				count:20
 			},
 			method:'GET',
 			dataType:"jsonp"
-		}).done(function(result){
-			console.log(result.subjects);
-			setData(result);
-		}).fail();
+			}).done(function(result){
+				star +=20;
+				flag=true;
+				$('.loading').hide();
+				console.log(result.subjects);
+				setData(result);
+			}).fail();
+		};
+		
 
+		
+		$('main').scroll(function(){
+			if($('main').height()+$('main').scrollTop()>$('section').height()-10){
+				start();
+			}
+		});
 
     // var script = document.createElement('script');
     // script.src = 'https://api.douban.com/v2/movie/top250?callback=setData';
@@ -130,7 +160,7 @@
 
 		function setData(result){
 			result.subjects.forEach(function(item){
-				console.log(item.images.medium);
+				//console.log(item.images.medium);
 				
 				var tpl=`
 					<div class="item">
