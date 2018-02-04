@@ -104,7 +104,11 @@
 			</div>
 			<div class="loading"><span class="iconfont icon-loading"></span></div>
 		</section>
-		<section>2</section>
+		<section>
+			<div class="item-containerUS">
+				
+			</div>
+		</section>
 		<section>3</section>
 	</main>
 	<footer> 
@@ -116,7 +120,7 @@
 	<script>
 		$('footer div').click(function(){
 			$index=$(this).index();
-			console.log($index);
+			//console.log($index);
 			$(this).addClass('active').siblings().removeClass('active');
 			$('main section').eq($index).addClass('active').siblings().removeClass('active');
 		});
@@ -142,7 +146,7 @@
 				star +=20;
 				flag=true;
 				$('.loading').hide();
-				console.log(result.subjects);
+				//console.log(result.subjects);
 				setData(result);
 			}).fail();
 		};
@@ -184,7 +188,7 @@
 				`;
 				$node=$(tpl);
 				$node.find('a').attr("href",item.alt);
-				console.log($node.find('item a'));
+				//console.log($node.find('item a'));
 				$node.find('.cover img').attr("src",item.images.medium);
 				$node.find('.details h2').text(item.title);
 				$node.find('.details .score').text(item.rating.average+'分');
@@ -206,6 +210,72 @@
 					return casts.join('、');
 				});
 				$('.item-container').append($node);
+			});
+		}
+
+
+
+		startUS();
+		function startUS(){
+			$.ajax({
+			url:'http://api.douban.com/v2/movie/us_box',
+			data:{
+				start:star,
+				count:20
+			},
+			method:'GET',
+			dataType:"jsonp"
+			}).done(function(result){
+				setDataUS(result);
+			}).fail();
+		};
+
+		function setDataUS(result){
+			console.log(result);
+			result.subjects.forEach(function(item){
+				var item=item.subject;
+				console.log(item.images);
+				
+				var tpl=`
+					<div class="item">
+						<a href="">
+						<div class="cover">
+							<img src="https://img3.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg" alt="">
+						</div>
+						<div class="details">
+							<h2>霸王别姬</h2>
+							<div class="extra"><span class="score"></span> / <span class="collect"></span>收藏</div>
+							<div class="extra"><span class="year"></span> / <span class="genres"></span></div>
+							<div class="extra">导演：<span class="directors"></span></div>
+							<div class="extra">主演：<span class="casts"></span></div>
+						</div>
+						</a>
+					</div>
+				`;
+				$node=$(tpl);
+				$node.find('a').attr("href",item.alt);
+				console.log($node.find('item a'));
+				$node.find('.cover img').attr("src",item.images.medium);
+				$node.find('.details h2').text(item.title);
+				$node.find('.details .score').text(item.rating.average+'分');
+				$node.find('.details .collect').text(item.id);
+				$node.find('.details .year').text(item.year);
+				$node.find('.details .genres').text(item.genres.join('、'));
+				$node.find('.details .directors').text(function(){
+					var directors=[];
+					item.directors.forEach(function(item){
+						directors.push(item.name);
+					});
+					return directors.join('、');
+				});
+				$node.find('.details .casts').text(function(){
+					var casts=[];
+					item.casts.forEach(function(item){
+						casts.push(item.name);
+					});
+					return casts.join('、');
+				});
+				$('.item-containerUS').append($node);
 			});
 		}
 	</script>
